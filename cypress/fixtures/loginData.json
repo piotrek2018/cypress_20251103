@@ -1,0 +1,24 @@
+{
+  "validUser": {
+    "userId": "testerLO",
+    "userPassword": "10987654"
+  },
+  "invalidUsers": {
+    "tooShortUsername": {
+      "userId": "test",
+      "userPassword": "10987654"
+    },
+    "tooShortPassword": {
+      "userId": "testerLO",
+      "userPassword": "1234"
+    },
+    "bothTooShort": {
+      "userId": "abc",
+      "userPassword": "123"
+    }
+  },
+  "errorMessages": {
+    "usernameMinLength": "identyfikator ma min. 8 znaków",
+    "passwordMinLength": "hasło ma min. 8 znaków"
+  }
+}

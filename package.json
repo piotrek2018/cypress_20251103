@@ -1,14 +1,25 @@
 {
-  "name": "cypress_20251103",
+  "name": "cypress-automation-project",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Cypress automation framework with POM",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:chrome": "cypress run --browser chrome",
+    "cy:run:firefox": "cypress run --browser firefox",
+    "cy:run:headed": "cypress run --headed",
+    "test:dev": "cypress run --env environment=dev",
+    "test:staging": "cypress run --env environment=staging",
+    "lint": "eslint cypress/**/*.ts",
+    "lint:fix": "eslint cypress/**/*.ts --fix",
+    "type-check": "tsc --noEmit"
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
-    "cypress": "^15.5.0"
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "cypress": "^13.6.0",
+    "eslint": "^8.0.0",
+    "eslint-plugin-cypress": "^2.15.0",
+    "typescript": "^5.9.3"
   }
 }
