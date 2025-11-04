@@ -38,6 +38,41 @@ jobs:
           command: npm run cy:run:chrome
         continue-on-error: true
 
+      - name: Debug - Check report structure
+        if: always()
+        run: |
+          echo "=== Reports directory structure ==="
+          find cypress/reports -type f -name "*.html" || echo "No HTML files found"
+          echo "=== List all files in reports ==="
+          ls -laR cypress/reports || echo "No reports directory"
+
+      - name: Prepare reports for GitHub Pages
+        if: always()
+        run: |
+          mkdir -p public
+
+          # Sprawdź, czy istnieje index.html w głównym katalogu reports
+          if [ -f "cypress/reports/index.html" ]; then
+            echo "Found index.html in reports root"
+            cp -r cypress/reports/* public/
+          # Sprawdź, czy są pliki HTML w podkatalogach
+          elif find cypress/reports -name "*.html" | grep -q .; then
+            echo "Found HTML files in subdirectories"
+            # Skopiuj wszystkie pliki HTML
+            find cypress/reports -name "*.html" -exec cp {} public/ \;
+            # Jeśli jest mochawesome.html, użyj go jako index.html
+            if [ -f "public/mochawesome.html" ]; then
+              cp public/mochawesome.html public/index.html
+            fi
+          else
+            echo "No HTML reports found, creating placeholder"
+            echo "<h1>No test reports generated</h1><p>Check if tests ran successfully</p>" > public/index.html
+          fi
+
+          # Pokaż, co mamy w public
+          echo "=== Public directory contents ==="
+          ls -la public/
+
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         if: failure()
@@ -62,7 +97,7 @@ jobs:
         if: always()
         uses: actions/upload-pages-artifact@v3
         with:
-          path: cypress/reports
+          path: public
 
       - name: Deploy to GitHub Pages
         if: always()
