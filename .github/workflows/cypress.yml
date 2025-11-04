@@ -16,20 +16,20 @@ permissions:
 jobs:
   cypress-run:
     runs-on: ubuntu-24.04
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
+          node-version: "20"
+          cache: "npm"
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run Cypress tests
         uses: cypress-io/github-action@v6
         with:
@@ -37,13 +37,33 @@ jobs:
           install: false
           command: npm run cy:run:chrome
         continue-on-error: true
-      
+
+      - name: Debug - List generated reports
+        if: always()
+        run: |
+          echo "Checking cypress/reports directory:"
+          ls -la cypress/reports/ || echo "No reports directory found"
+          find cypress/reports -type f || echo "No files found"
+
       - name: Merge Mochawesome reports
         if: always()
         run: |
-          npx mochawesome-merge cypress/reports/*.json > cypress/reports/mochawesome-bundle.json
-          npx marge cypress/reports/mochawesome-bundle.json --reportDir cypress/reports/html --inline
-      
+          if [ -d "cypress/reports" ] && [ "$(ls -A cypress/reports/*.json 2>/dev/null)" ]; then
+            npx mochawesome-merge cypress/reports/*.json > cypress/reports/mochawesome-bundle.json
+            npx marge cypress/reports/mochawesome-bundle.json --reportDir cypress/reports/html --inline
+            echo "Reports merged successfully"
+          else
+            echo "No JSON reports found to merge"
+            mkdir -p cypress/reports/html
+            echo "<h1>No test reports generated</h1>" > cypress/reports/html/index.html
+          fi
+
+      - name: Debug - List HTML reports
+        if: always()
+        run: |
+          echo "Checking cypress/reports/html directory:"
+          ls -la cypress/reports/html/ || echo "No HTML directory found"
+
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         if: failure()
@@ -51,7 +71,7 @@ jobs:
           name: cypress-screenshots
           path: cypress/screenshots
           retention-days: 7
-      
+
       - name: Upload videos
         uses: actions/upload-artifact@v4
         if: always()
@@ -59,18 +79,22 @@ jobs:
           name: cypress-videos
           path: cypress/videos
           retention-days: 7
-      
+
       - name: Setup Pages
         if: always()
         uses: actions/configure-pages@v4
-      
+
       - name: Upload artifact for GitHub Pages
         if: always()
         uses: actions/upload-pages-artifact@v3
         with:
           path: cypress/reports/html
-      
+
       - name: Deploy to GitHub Pages
         if: always()
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Output report URL
+        if: always()
+        run: echo "Test Report available at ${{ steps.deployment.outputs.page_url }}"
