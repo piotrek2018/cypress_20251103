@@ -77,4 +77,4 @@ jobs:
 
       - name: Output report URL
         if: always()
-        run: echo "📊 Report publikowany pod adresem: ${{ steps.deployment.outputs.page_url }}"
+        run: echo "Report publikowany pod adresem: ${{ steps.deployment.outputs.page_url }}"
